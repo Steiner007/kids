@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Activity Sheet Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:#FF6B35; --orange-dk:#D94F1E; --navy:#2D3561; --gold:#FFD23F;
+  --cream:#FFFBF0;
+  --math:#1D9E75; --math-bg:#E1F5EE;
+  --read:#639922;  --read-bg:#EAF3DE;
+  --logic:#534AB7; --logic-bg:#EEEDFE;
+  --sci:#D4537E;   --sci-bg:#FBEAF0;
+  --act:#B05E00;   --act-bg:#FFF0D4;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:#1a1a2e;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem;}
+
+/* PANEL */
+.panel{background:#16213e;border:1px solid #0f3460;border-radius:20px;padding:1.75rem 2rem;width:100%;max-width:660px;margin-bottom:2rem;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.panel-title{font-family:'Fredoka One',cursive;font-size:1.9rem;color:var(--gold);text-align:center;margin-bottom:.15rem;}
+.panel-sub{text-align:center;color:#888;font-size:.82rem;margin-bottom:1.5rem;}
+.fl{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.1rem;}
+.fl label{display:block;font-size:.72rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.3rem;}
+.fl input,.fl select{width:100%;background:#0f3460;border:1px solid #1a4a80;border-radius:9px;padding:.55rem .9rem;color:#fff;font-family:'Nunito',sans-serif;font-size:.9rem;outline:none;}
+.fl input:focus,.fl select:focus{border-color:var(--gold);}
+.fl select option{background:#0f3460;}
+.f1{flex:1;min-width:130px;}
+.type-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:1.3rem;}
+.tt{background:#0f3460;border:1.5px solid #1a4a80;border-radius:10px;padding:.45rem .2rem;text-align:center;cursor:pointer;user-select:none;transition:all .15s;}
+.tt .ti{font-size:1.1rem;display:block;margin-bottom:1px;}
+.tt .tn{font-size:.6rem;font-weight:700;color:#aaa;}
+.tt.on-math{border-color:var(--math);background:#0d2e20;} .tt.on-math .tn{color:var(--math);}
+.tt.on-reading{border-color:var(--read);background:#182c0a;} .tt.on-reading .tn{color:var(--read);}
+.tt.on-logic{border-color:var(--logic);background:#18164a;} .tt.on-logic .tn{color:var(--logic);}
+.tt.on-science{border-color:var(--sci);background:#2e0f1e;} .tt.on-science .tn{color:var(--sci);}
+.tt.on-activity{border-color:var(--act);background:#2e1800;} .tt.on-activity .tn{color:var(--act);}
+.btn-row{display:flex;gap:10px;}
+.btn{flex:1;padding:.8rem;border-radius:12px;border:none;font-family:'Fredoka One',cursive;font-size:1.05rem;cursor:pointer;letter-spacing:.4px;transition:transform .1s;}
+.btn:active{transform:scale(.97);}
+.btn-gen{background:var(--orange);color:#fff;box-shadow:0 4px 18px rgba(255,107,53,.4);}
+.btn-gen:hover{background:var(--orange-dk);}
+.btn-print{background:var(--gold);color:var(--navy);box-shadow:0 4px 18px rgba(255,210,63,.3);}
+.btn-print:hover{background:#e6bc30;}
+
+/* SHEET */
+.sheet-wrap{width:100%;max-width:860px;}
+.sheet{background:var(--cream);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);font-family:'Nunito',sans-serif;position:relative;margin-bottom:1.5rem;}
+.dot-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(circle,#e8d8b0 1.5px,transparent 1.5px);background-size:28px 28px;opacity:.4;}
+.sh-head{background:var(--orange);padding:.9rem 1.4rem .75rem;position:relative;z-index:1;}
+.sh-head.key-head{background:var(--navy);}
+.sh-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.sh-title{font-family:'Fredoka One',cursive;font-size:1.55rem;color:#fff;line-height:1.1;}
+.sh-sub{color:rgba(255,255,255,.72);font-size:.75rem;font-weight:600;margin-top:.1rem;}
+.sh-name{color:rgba(255,255,255,.88);font-size:.72rem;font-weight:700;text-align:right;white-space:nowrap;line-height:1.7;}
+.sh-stars{display:flex;gap:3px;margin-top:.3rem;}
+.sh-body{padding:1rem 1.1rem 1.1rem;position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.sh-foot{background:var(--orange);padding:.45rem 1rem;text-align:center;font-family:'Fredoka One',cursive;color:#fff;font-size:.85rem;position:relative;z-index:1;}
+.sh-foot.key-foot{background:var(--navy);}
+
+/* CARDS */
+.qc{background:#fff;border-radius:11px;border:1.5px solid #ddd;padding:.65rem .8rem .6rem;position:relative;overflow:hidden;}
+.qc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:11px 0 0 11px;}
+.qc.type-math::before{background:var(--math);}
+.qc.type-reading::before{background:var(--read);}
+.qc.type-logic::before{background:var(--logic);}
+.qc.type-science::before{background:var(--sci);}
+.qc.type-activity::before{background:var(--act);}
+.qt{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem;}
+.badge{font-size:.58rem;font-weight:800;padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em;}
+.bm{background:var(--math-bg);color:var(--math);}
+.br{background:var(--read-bg);color:var(--read);}
+.bl{background:var(--logic-bg);color:var(--logic);}
+.bs{background:var(--sci-bg);color:var(--sci);}
+.ba{background:var(--act-bg);color:var(--act);}
+.ql{font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--navy);}
+.qtx{font-size:.8rem;color:#1a1a2e;line-height:1.45;margin-bottom:.3rem;white-space:pre-line;}
+.ans-box{background:#f0fff8;border:1.5px solid var(--math);border-radius:6px;padding:3px 8px;font-size:.7rem;color:#888;display:flex;align-items:center;gap:6px;min-height:24px;margin-top:.3rem;}
+.ans-lbl{font-weight:700;white-space:nowrap;}
+.ans-val{color:#c00;font-weight:800;font-size:.8rem;}
+.write-line{border-bottom:2px solid #bbb;height:20px;margin:.3rem 0 .1rem;width:100%;}
+.write-lines{display:flex;flex-direction:column;gap:5px;margin:.25rem 0;}
+
+/* WORD SEARCH */
+.ws-grid{font-family:'Fredoka One',cursive;font-size:.75rem;line-height:1.65;letter-spacing:.2em;color:#1a1a2e;margin:.2rem 0;}
+.ws-words{display:flex;flex-wrap:wrap;gap:3px 7px;margin-top:.2rem;}
+.ws-word{font-size:.65rem;font-weight:800;color:var(--navy);background:#e8eaf8;padding:1px 6px;border-radius:4px;}
+
+/* SCRAMBLE / RHYME */
+.scrambled{font-family:'Fredoka One',cursive;font-size:1.4rem;letter-spacing:.25em;color:var(--logic);margin:.2rem 0 .15rem;}
+.rhyme-word{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--orange);margin:.15rem 0;}
+
+/* MAZE */
+.maze-svg{display:block;margin:.2rem auto 0;}
+
+@media(max-width:600px){
+  body{padding:.75rem;}
+  .panel{padding:1.25rem 1.1rem;border-radius:14px;}
+  .panel-title{font-size:1.5rem;}
+  .type-grid{grid-template-columns:repeat(5,1fr);gap:5px;}
+  .tt{padding:.4rem .1rem;}
+  .tt .ti{font-size:1rem;}
+  .tt .tn{font-size:.55rem;}
+  .btn{font-size:.95rem;padding:.75rem .5rem;}
+  .fl{flex-direction:column;gap:8px;}
+  .f1{min-width:0;}
+  .sh-body{grid-template-columns:1fr!important;gap:8px;padding:.75rem!important;}
+  .sh-title{font-size:1.2rem;}
+  .sh-top{flex-direction:column;gap:4px;}
+  .sh-name{text-align:left;}
+  .qtx{font-size:.85rem;}
+  .ws-grid{font-size:.8rem;letter-spacing:.15em;}
+  .scrambled{font-size:1.6rem;}
+  .rhyme-word{font-size:1.7rem;}
+  .sheet{border-radius:12px;}
+  .sheet-wrap{max-width:100%;}
+}
+@media print{
+  body{background:#fff!important;padding:0!important;display:block!important;}
+  .panel{display:none!important;}
+  .sheet-wrap{max-width:100%!important;}
+  .sheet{border-radius:0!important;box-shadow:none!important;page-break-after:always;break-after:page;margin-bottom:0;}
+  .sheet:last-child{page-break-after:avoid;break-after:avoid;}
+  .dot-bg{opacity:.2!important;}
+  .qc{break-inside:avoid;}
+  .sh-body{padding:.65rem .9rem!important;grid-template-columns:1fr 1fr!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="panel">
+  <div class="panel-title">⭐ Activity Sheet Maker</div>
+  <div class="panel-sub">Open in browser · Generate · Print — works completely offline!</div>
+  <div class="fl">
+    <div class="f1"><label>Adventure Title</label><input id="titleInput" value="Adventure #1: The Number Kingdom" /></div>
+  </div>
+  <div class="fl">
+    <div class="f1"><label>Number of Activities</label>
+      <select id="qCount">
+        <option value="4">4 activities</option>
+        <option value="6" selected>6 activities</option>
+        <option value="8">8 activities</option>
+      </select>
+    </div>
+    <div class="f1"><label>Kid's Name (optional)</label><input id="kidName" placeholder="e.g. Emma" /></div>
+  </div>
+  <div style="font-size:.72rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.45rem;">Activity Types — click to toggle</div>
+  <div class="type-grid">
+    <div class="tt on-math"     data-type="math"     onclick="toggleType(this)"><span class="ti">🔢</span><span class="tn">Math</span></div>
+    <div class="tt on-reading"  data-type="reading"  onclick="toggleType(this)"><span class="ti">📖</span><span class="tn">Reading</span></div>
+    <div class="tt on-logic"    data-type="logic"    onclick="toggleType(this)"><span class="ti">🧩</span><span class="tn">Logic</span></div>
+    <div class="tt on-science"  data-type="science"  onclick="toggleType(this)"><span class="ti">🔬</span><span class="tn">Science</span></div>
+    <div class="tt on-activity" data-type="activity" onclick="toggleType(this)"><span class="ti">🎯</span><span class="tn">Puzzles</span></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-gen"   onclick="generate()">🎲 New Sheet</button>
+    <button class="btn btn-print" onclick="window.print()">🖨️ Print Both</button>
+  </div>
+</div>
+
+<div class="sheet-wrap" id="sheetWrap"></div>
+
+<script>
+// ─── QUESTION BANKS ──────────────────────────────────────────────────────────
+const QB = {
+  math:[
+    {q:"What is 1 + 1?",a:"2"},{q:"What is 2 + 2?",a:"4"},{q:"What is 3 + 1?",a:"4"},
+    {q:"What is 5 - 2?",a:"3"},{q:"What is 1 + 2?",a:"3"},{q:"What is 4 - 1?",a:"3"},
+    {q:"What is 2 + 3?",a:"5"},{q:"What is 6 - 3?",a:"3"},{q:"What is 3 + 3?",a:"6"},
+    {q:"What is 5 + 1?",a:"6"},{q:"What is 4 + 2?",a:"6"},{q:"What is 7 - 3?",a:"4"},
+    {q:"What is 8 - 4?",a:"4"},{q:"What is 5 + 2?",a:"7"},{q:"What is 4 + 4?",a:"8"},
+    {q:"What is 10 - 5?",a:"5"},{q:"How many legs does a cat have?",a:"4"},
+    {q:"How many fingers are on one hand?",a:"5"},{q:"How many wheels does a bike have?",a:"2"},
+    {q:"How many eyes do you have?",a:"2"},{q:"🍎🍎🍎  How many apples?",a:"3"},
+    {q:"⭐⭐⭐⭐  How many stars?",a:"4"},{q:"What is 9 - 6?",a:"3"},
+    {q:"What is 3 + 4?",a:"7"},{q:"What is 6 + 2?",a:"8"},{q:"What is 5 - 3?",a:"2"},
+    {q:"What is 2 + 1?",a:"3"},{q:"What is 7 - 4?",a:"3"},{q:"What is 0 + 5?",a:"5"},
+  ],
+  reading:[
+    {q:"What letter does CAT start with?",a:"C"},{q:"What letter does DOG start with?",a:"D"},
+    {q:"What letter does SUN start with?",a:"S"},{q:"What letter does FISH start with?",a:"F"},
+    {q:"What letter does APPLE start with?",a:"A"},{q:"What letter does BALL start with?",a:"B"},
+    {q:"What letter does MOON start with?",a:"M"},{q:"What letter does RAIN start with?",a:"R"},
+    {q:"How many letters are in CAT?",a:"3"},{q:"How many letters are in DOG?",a:"3"},
+    {q:"How many letters are in SUN?",a:"3"},{q:"How many letters are in HAT?",a:"3"},
+    {q:"Spell the word for 1.",a:"ONE"},{q:"Spell the word for 2.",a:"TWO"},
+    {q:"Spell the word for 3.",a:"THREE"},{q:"Spell the word for 4.",a:"FOUR"},
+    {q:"Spell the word for 5.",a:"FIVE"},{q:"What color is the sky?",a:"Blue"},
+    {q:"What color is grass?",a:"Green"},{q:"What color is the sun?",a:"Yellow"},
+    {q:"What color is a stop sign?",a:"Red"},{q:"What letter does TREE start with?",a:"T"},
+    {q:"What letter does KITE start with?",a:"K"},{q:"How many letters are in RED?",a:"3"},
+    {q:"How many letters are in BLUE?",a:"4"},{q:"What letter does EGG start with?",a:"E"},
+  ],
+  logic:[
+    {q:"What comes next?\n1,  2,  3,  ___",a:"4"},{q:"What comes next?\n2,  4,  6,  ___",a:"8"},
+    {q:"What comes next?\n5, 10, 15,  ___",a:"20"},{q:"What comes next?\n10, 20, 30,  ___",a:"40"},
+    {q:"What comes next?\nA,  B,  C,  ___",a:"D"},{q:"What comes next?\nD,  E,  F,  ___",a:"G"},
+    {q:"Which is bigger?\n  [ ] Mouse    [ ] Elephant",a:"Elephant"},
+    {q:"Which is smaller?\n  [ ] Whale    [ ] Ant",a:"Ant"},
+    {q:"Which is hotter?\n  [ ] Ice    [ ] Fire",a:"Fire"},
+    {q:"Which one flies?\n  [ ] Dog    [ ] Bird",a:"Bird"},
+    {q:"Which one swims?\n  [ ] Cat    [ ] Fish",a:"Fish"},
+    {q:"Tom has 3 toys. Gets 1 more.\nHow many now?",a:"4"},
+    {q:"Sue has 5 balloons. 2 pop.\nHow many left?",a:"3"},
+    {q:"2 red crayons + 2 blue crayons =\nhow many crayons total?",a:"4"},
+    {q:"What comes next?\n3,  6,  9,  ___",a:"12"},
+    {q:"Which is taller?\n  [ ] Grass    [ ] Tree",a:"Tree"},
+    {q:"What comes next?\n1,  3,  5,  ___",a:"7"},
+  ],
+  science:[
+    {q:"True or False:\nThe sun gives us light.\n  [ ] True    [ ] False",a:"True"},
+    {q:"True or False:\nFish live on land.\n  [ ] True    [ ] False",a:"False"},
+    {q:"True or False:\nDogs are animals.\n  [ ] True    [ ] False",a:"True"},
+    {q:"True or False:\nIce is cold.\n  [ ] True    [ ] False",a:"True"},
+    {q:"True or False:\nThe moon makes its own light.\n  [ ] True    [ ] False",a:"False"},
+    {q:"True or False:\nBirds have feathers.\n  [ ] True    [ ] False",a:"True"},
+    {q:"True or False:\nThe Earth is flat.\n  [ ] True    [ ] False",a:"False"},
+    {q:"True or False:\nCats can fly.\n  [ ] True    [ ] False",a:"False"},
+    {q:"True or False:\nWater is wet.\n  [ ] True    [ ] False",a:"True"},
+    {q:"Which animal lays eggs?\n  [ ] Dog    [ ] Chicken",a:"Chicken"},
+    {q:"What do plants need to grow?\n  [ ] Water    [ ] Rocks",a:"Water"},
+    {q:"How many legs does a spider have?",a:"8"},
+    {q:"How many legs does an insect have?",a:"6"},
+    {q:"What do we breathe?\n  [ ] Water    [ ] Air",a:"Air"},
+    {q:"What color is a healthy leaf?\n  [ ] Purple    [ ] Green",a:"Green"},
+    {q:"Where do fish live?\n  [ ] In the sky    [ ] In water",a:"In water"},
+  ],
+};
+
+// ─── RHYME BANK ──────────────────────────────────────────────────────────────
+const RHYMES = [
+  {word:"CAT",  ans:["bat","hat","mat","rat","sat","fat","pat"]},
+  {word:"DOG",  ans:["log","fog","hog","frog","bog"]},
+  {word:"SUN",  ans:["fun","run","bun","gun","pun","done"]},
+  {word:"CAKE", ans:["lake","bake","make","rake","snake","take"]},
+  {word:"TREE", ans:["bee","see","me","free","knee","tea"]},
+  {word:"FISH", ans:["dish","wish","swish"]},
+  {word:"BALL", ans:["tall","fall","wall","call","hall","small"]},
+  {word:"STAR", ans:["car","bar","far","jar","tar"]},
+  {word:"RAIN", ans:["train","pain","brain","chain","plane","main"]},
+  {word:"HAT",  ans:["bat","cat","mat","rat","sat","flat"]},
+  {word:"BEE",  ans:["see","tree","me","free","knee","tea"]},
+  {word:"MOON", ans:["spoon","soon","noon","balloon","tune"]},
+  {word:"KING", ans:["ring","sing","wing","thing","spring","sting"]},
+  {word:"HOOK", ans:["book","cook","look","took","brook"]},
+  {word:"FLY",  ans:["sky","cry","try","pie","high","why"]},
+  {word:"BEAR", ans:["chair","hair","care","share","stare","air"]},
+  {word:"BITE", ans:["kite","light","night","right","white","tight"]},
+];
+
+// ─── SCRAMBLE BANK ───────────────────────────────────────────────────────────
+const SCRAMBLES = [
+  {word:"CAT",scrambled:"TAC"},{word:"DOG",scrambled:"GOD"},{word:"SUN",scrambled:"NUS"},
+  {word:"HAT",scrambled:"TAH"},{word:"MAP",scrambled:"PAM"},{word:"BUS",scrambled:"SUB"},
+  {word:"CUP",scrambled:"PCU"},{word:"PIG",scrambled:"GIP"},{word:"HEN",scrambled:"NEH"},
+  {word:"BED",scrambled:"DBE"},{word:"FAN",scrambled:"NAF"},{word:"TOP",scrambled:"POT"},
+  {word:"NET",scrambled:"TEN"},{word:"PEN",scrambled:"NEP"},{word:"ANT",scrambled:"TNA"},
+  {word:"OWL",scrambled:"WLO"},{word:"APE",scrambled:"PAE"},{word:"COW",scrambled:"WOC"},
+  {word:"JAM",scrambled:"MAJ"},{word:"BAT",scrambled:"TAB"},{word:"LOG",scrambled:"GOL"},
+  {word:"MOP",scrambled:"POM"},{word:"GUM",scrambled:"MUG"},{word:"TUB",scrambled:"BUT"},
+  {word:"HOT",scrambled:"TOH"},{word:"WET",scrambled:"TEW"},{word:"RED",scrambled:"DER"},
+  {word:"HOP",scrambled:"POH"},{word:"NAP",scrambled:"PAN"},{word:"SAP",scrambled:"PAS"},
+];
+
+// ─── WORD SEARCH BANK ────────────────────────────────────────────────────────
+const WS_SETS = [
+  {words:["CAT","DOG","SUN","HAT","BIG"],size:7},
+  {words:["RED","BUS","ANT","TOP","FUN"],size:7},
+  {words:["BEE","CUP","MAP","PIG","NET"],size:7},
+  {words:["OWL","COW","HEN","BED","JAM"],size:7},
+  {words:["BAT","LOG","GUM","FAN","PEN"],size:7},
+  {words:["HOP","WET","MOP","APE","TUB"],size:7},
+  {words:["COT","SAP","NAP","HOT","OAK"],size:7},
+];
+
+// ─── MAZES (7×7, wall segments as grid lines) ────────────────────────────────
+const MAZES = [
+  {
+    name:"Find the star! ⭐",
+    cols:7,rows:7,
+    walls:[
+      {x1:1,y1:1,x2:2,y2:1},{x1:3,y1:1,x2:4,y2:1},{x1:5,y1:1,x2:6,y2:1},
+      {x1:2,y1:1,x2:2,y2:2},{x1:4,y1:1,x2:4,y2:2},
+      {x1:1,y1:2,x2:3,y2:2},{x1:5,y1:2,x2:6,y2:2},{x1:6,y1:2,x2:6,y2:3},
+      {x1:2,y1:3,x2:2,y2:4},{x1:4,y1:3,x2:5,y2:3},{x1:1,y1:3,x2:2,y2:3},
+      {x1:5,y1:3,x2:5,y2:4},{x1:3,y1:4,x2:4,y2:4},{x1:4,y1:4,x2:4,y2:5},
+      {x1:1,y1:4,x2:1,y2:5},{x1:2,y1:5,x2:3,y2:5},{x1:5,y1:5,x2:6,y2:5},
+      {x1:6,y1:4,x2:6,y2:5},{x1:1,y1:6,x2:2,y2:6},{x1:3,y1:6,x2:4,y2:6},
+      {x1:5,y1:6,x2:6,y2:6},{x1:3,y1:5,x2:3,y2:6},{x1:5,y1:4,x2:5,y2:5},
+    ],
+    entry:{x:0,y:3},exit:{x:7,y:3},startLabel:"GO",endLabel:"⭐"
+  },
+  {
+    name:"Help the bunny find the carrot!",
+    cols:7,rows:7,
+    walls:[
+      {x1:2,y1:0,x2:2,y2:1},{x1:4,y1:0,x2:4,y2:1},
+      {x1:1,y1:1,x2:2,y2:1},{x1:3,y1:1,x2:5,y2:1},{x1:5,y1:1,x2:5,y2:2},{x1:6,y1:1,x2:6,y2:2},
+      {x1:1,y1:2,x2:1,y2:3},{x1:2,y1:2,x2:3,y2:2},{x1:4,y1:2,x2:4,y2:3},
+      {x1:2,y1:3,x2:2,y2:4},{x1:5,y1:3,x2:6,y2:3},{x1:3,y1:3,x2:3,y2:4},{x1:6,y1:3,x2:6,y2:4},
+      {x1:1,y1:4,x2:2,y2:4},{x1:4,y1:4,x2:5,y2:4},{x1:3,y1:5,x2:3,y2:6},{x1:1,y1:5,x2:1,y2:6},
+      {x1:2,y1:5,x2:3,y2:5},{x1:4,y1:5,x2:6,y2:5},{x1:5,y1:5,x2:5,y2:6},{x1:6,y1:4,x2:6,y2:5},
+      {x1:2,y1:6,x2:3,y2:6},{x1:4,y1:6,x2:5,y2:6},
+    ],
+    entry:{x:0,y:1},exit:{x:7,y:5},startLabel:"🐰",endLabel:"🥕"
+  },
+  {
+    name:"Get to the treasure chest!",
+    cols:7,rows:7,
+    walls:[
+      {x1:1,y1:0,x2:1,y2:1},{x1:3,y1:0,x2:3,y2:1},{x1:5,y1:0,x2:6,y2:1},
+      {x1:2,y1:1,x2:3,y2:1},{x1:4,y1:1,x2:5,y2:1},
+      {x1:1,y1:1,x2:1,y2:2},{x1:5,y1:1,x2:5,y2:2},
+      {x1:2,y1:2,x2:2,y2:3},{x1:4,y1:2,x2:4,y2:3},{x1:6,y1:2,x2:6,y2:3},
+      {x1:1,y1:3,x2:2,y2:3},{x1:3,y1:3,x2:4,y2:3},{x1:3,y1:3,x2:3,y2:4},{x1:5,y1:3,x2:5,y2:4},
+      {x1:1,y1:4,x2:1,y2:5},{x1:2,y1:4,x2:3,y2:4},{x1:4,y1:4,x2:4,y2:5},
+      {x1:2,y1:5,x2:2,y2:6},{x1:5,y1:5,x2:6,y2:5},{x1:1,y1:5,x2:2,y2:5},
+      {x1:3,y1:5,x2:4,y2:5},{x1:6,y1:4,x2:6,y2:5},
+      {x1:1,y1:6,x2:2,y2:6},{x1:3,y1:6,x2:4,y2:6},{x1:5,y1:6,x2:6,y2:6},
+    ],
+    entry:{x:0,y:0},exit:{x:7,y:6},startLabel:"🧒",endLabel:"💰"
+  },
+  {
+    name:"Help the dog find the bone!",
+    cols:7,rows:7,
+    walls:[
+      {x1:1,y1:0,x2:2,y2:0},{x1:4,y1:0,x2:5,y2:0},
+      {x1:2,y1:1,x2:3,y2:1},{x1:5,y1:1,x2:6,y2:1},{x1:6,y1:0,x2:6,y2:1},
+      {x1:1,y1:2,x2:1,y2:3},{x1:3,y1:2,x2:4,y2:2},{x1:4,y1:1,x2:4,y2:2},
+      {x1:2,y1:3,x2:3,y2:3},{x1:5,y1:2,x2:5,y2:3},{x1:6,y1:2,x2:6,y2:3},
+      {x1:1,y1:3,x2:1,y2:4},{x1:4,y1:3,x2:4,y2:4},{x1:3,y1:4,x2:3,y2:5},
+      {x1:2,y1:4,x2:3,y2:4},{x1:5,y1:4,x2:6,y2:4},{x1:6,y1:3,x2:6,y2:4},
+      {x1:1,y1:5,x2:2,y2:5},{x1:4,y1:5,x2:5,y2:5},{x1:5,y1:5,x2:5,y2:6},
+      {x1:2,y1:6,x2:3,y2:6},{x1:4,y1:6,x2:5,y2:6},
+      {x1:1,y1:4,x2:1,y2:5},{x1:6,y1:5,x2:6,y2:6},
+    ],
+    entry:{x:0,y:2},exit:{x:7,y:4},startLabel:"🐶",endLabel:"🦴"
+  },
+  {
+    name:"Find the rainbow! 🌈",
+    cols:7,rows:7,
+    walls:[
+      {x1:2,y1:0,x2:3,y2:0},{x1:5,y1:0,x2:6,y2:0},
+      {x1:1,y1:1,x2:2,y2:1},{x1:3,y1:1,x2:4,y2:1},{x1:4,y1:0,x2:4,y2:1},
+      {x1:6,y1:1,x2:6,y2:2},{x1:2,y1:2,x2:2,y2:3},{x1:4,y1:2,x2:5,y2:2},
+      {x1:5,y1:2,x2:5,y2:3},{x1:1,y1:2,x2:1,y2:3},{x1:3,y1:3,x2:4,y2:3},
+      {x1:6,y1:2,x2:6,y2:3},{x1:2,y1:4,x2:3,y2:4},{x1:4,y1:3,x2:4,y2:4},
+      {x1:1,y1:4,x2:2,y2:4},{x1:5,y1:4,x2:6,y2:4},{x1:6,y1:3,x2:6,y2:4},
+      {x1:3,y1:5,x2:3,y2:6},{x1:1,y1:5,x2:1,y2:6},{x1:2,y1:5,x2:3,y2:5},
+      {x1:4,y1:5,x2:5,y2:5},{x1:5,y1:5,x2:5,y2:6},
+      {x1:2,y1:6,x2:3,y2:6},{x1:4,y1:6,x2:5,y2:6},
+    ],
+    entry:{x:0,y:3},exit:{x:7,y:1},startLabel:"GO",endLabel:"🌈"
+  },
+];
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const activeTypes = new Set(['math','reading','logic','science','activity']);
+function toggleType(el){
+  const t=el.dataset.type;
+  if(activeTypes.has(t)){if(activeTypes.size===1)return;activeTypes.delete(t);el.className='tt';}
+  else{activeTypes.add(t);el.className=`tt on-${t}`;}
+}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+
+const usedSets={math:new Set(),reading:new Set(),logic:new Set(),science:new Set(),maze:new Set(),ws:new Set(),rhyme:new Set(),scramble:new Set()};
+function pickUnused(pool,key){
+  if(usedSets[key].size>=pool.length) usedSets[key].clear();
+  const avail=pool.map((_,i)=>i).filter(i=>!usedSets[key].has(i));
+  const idx=pick(avail);
+  usedSets[key].add(idx);
+  return pool[idx];
+}
+
+// ─── WORD SEARCH BUILDER ─────────────────────────────────────────────────────
+function buildWS(set){
+  const {words,size}=set;
+  const grid=Array.from({length:size},()=>Array(size).fill(''));
+  const dirs=[[0,1],[1,0],[0,-1],[-1,0],[1,1],[-1,-1],[1,-1],[-1,1]];
+  function canPlace(w,r,c,dr,dc){
+    for(let i=0;i<w.length;i++){
+      const nr=r+i*dr,nc=c+i*dc;
+      if(nr<0||nr>=size||nc<0||nc>=size) return false;
+      if(grid[nr][nc]!==''&&grid[nr][nc]!==w[i]) return false;
+    }return true;
+  }
+  function place(w,r,c,dr,dc){for(let i=0;i<w.length;i++)grid[r+i*dr][c+i*dc]=w[i];}
+  const placed=[];
+  for(const word of words){
+    const attempts=shuffle(dirs.flatMap(([dr,dc])=>
+      Array.from({length:size*size},(_,k)=>({r:Math.floor(k/size),c:k%size,dr,dc}))));
+    for(const {r,c,dr,dc} of attempts){
+      if(canPlace(word,r,c,dr,dc)){place(word,r,c,dr,dc);placed.push(word);break;}
+    }
+  }
+  const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for(let r=0;r<size;r++)for(let c=0;c<size;c++)if(!grid[r][c])grid[r][c]=A[Math.floor(Math.random()*26)];
+  return {grid,placed};
+}
+
+// ─── MAZE SVG ─────────────────────────────────────────────────────────────────
+function buildMazeSVG(maze){
+  const {cols,rows,walls,entry,exit,startLabel,endLabel}=maze;
+  // Small cell size so maze fits inside a card column
+  const cell=18,pad=8,labelW=22;
+  const W2=cols*cell+pad*2+labelW*2, H2=rows*cell+pad*2;
+  const ox=pad+labelW, oy=pad;
+  let s='';
+  // outer border with entry/exit gaps
+  s+=`<line x1="${ox}" y1="${oy}" x2="${ox+cols*cell}" y2="${oy}" stroke="#2D3561" stroke-width="2"/>`;
+  s+=`<line x1="${ox}" y1="${oy+rows*cell}" x2="${ox+cols*cell}" y2="${oy+rows*cell}" stroke="#2D3561" stroke-width="2"/>`;
+  // left wall with entry gap
+  if(entry.x===0){
+    const gy=oy+entry.y*cell;
+    if(entry.y>0)s+=`<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${gy}" stroke="#2D3561" stroke-width="2"/>`;
+    s+=`<line x1="${ox}" y1="${gy+cell}" x2="${ox}" y2="${oy+rows*cell}" stroke="#2D3561" stroke-width="2"/>`;
+  }else{s+=`<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy+rows*cell}" stroke="#2D3561" stroke-width="2"/>`;}
+  // right wall with exit gap
+  if(exit.x===cols){
+    const gy=oy+exit.y*cell;
+    if(exit.y>0)s+=`<line x1="${ox+cols*cell}" y1="${oy}" x2="${ox+cols*cell}" y2="${gy}" stroke="#2D3561" stroke-width="2"/>`;
+    s+=`<line x1="${ox+cols*cell}" y1="${gy+cell}" x2="${ox+cols*cell}" y2="${oy+rows*cell}" stroke="#2D3561" stroke-width="2"/>`;
+  }else{s+=`<line x1="${ox+cols*cell}" y1="${oy}" x2="${ox+cols*cell}" y2="${oy+rows*cell}" stroke="#2D3561" stroke-width="2"/>`;}
+  // inner walls
+  for(const w of walls){
+    s+=`<line x1="${ox+w.x1*cell}" y1="${oy+w.y1*cell}" x2="${ox+w.x2*cell}" y2="${oy+w.y2*cell}" stroke="#2D3561" stroke-width="1.5"/>`;
+  }
+  // entry/exit labels
+  if(entry.x===0)s+=`<text x="${ox-4}" y="${oy+entry.y*cell+cell/2+4}" text-anchor="end" font-family="Fredoka One,cursive" font-size="10" fill="#FF6B35">${startLabel}</text>`;
+  if(exit.x===cols)s+=`<text x="${ox+cols*cell+5}" y="${oy+exit.y*cell+cell/2+4}" text-anchor="start" font-family="Fredoka One,cursive" font-size="11" fill="#FF6B35">${endLabel}</text>`;
+  // Make SVG scale to fill available card width
+  return `<svg class="maze-svg" width="100%" viewBox="0 0 ${W2} ${H2}" style="max-width:${W2}px;" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+}
+
+// ─── ACTIVITY CARD BUILDER ───────────────────────────────────────────────────
+const ACTIVITY_KINDS=['maze','wordsearch','unscramble','rhyme'];
+const usedActivityKind=new Set();
+
+function buildActivity(label){
+  // rotate through kinds so we don't repeat the same type twice in a row
+  let available=ACTIVITY_KINDS.filter(k=>!usedActivityKind.has(k));
+  if(!available.length){usedActivityKind.clear();available=ACTIVITY_KINDS.slice();}
+  const kind=pick(available);
+  usedActivityKind.add(kind);
+
+  if(kind==='maze'){
+    const maze=pickUnused(MAZES,'maze');
+    return {
+      type:'activity',label,
+      question:`Can you find the way through?\n${maze.name}`,
+      body:buildMazeSVG(maze),
+      answer:'Follow the path!',
+      answerKey:'Follow the open path from start to finish.'
+    };
+  }
+  if(kind==='wordsearch'){
+    const set=pickUnused(WS_SETS,'ws');
+    const {grid,placed}=buildWS(set);
+    const rows=grid.map(row=>`<div>${row.join(' ')}</div>`).join('');
+    const badges=placed.map(w=>`<span class="ws-word">${w}</span>`).join('');
+    return {
+      type:'activity',label,
+      question:'Find all the hidden words! →',
+      body:`<div class="ws-grid">${rows}</div><div class="ws-words">${badges}</div>`,
+      answer:'Circle: '+placed.join(', '),
+      answerKey:'Words in grid: '+placed.join(', ')
+    };
+  }
+  if(kind==='unscramble'){
+    const s=pickUnused(SCRAMBLES,'scramble');
+    return {
+      type:'activity',label,
+      question:'Unscramble the letters\nto spell a real word!',
+      body:`<div class="scrambled">${s.scrambled}</div><div class="write-line"></div>`,
+      answer:s.word,
+      answerKey:s.word
+    };
+  }
+  // rhyme
+  const r=pickUnused(RHYMES,'rhyme');
+  return {
+    type:'activity',label,
+    question:'Write a word that\nrhymes with...',
+    body:`<div class="rhyme-word">${r.word}</div><div class="write-lines"><div class="write-line"></div><div class="write-line"></div></div>`,
+    answer:'e.g. '+r.ans.slice(0,2).join(', '),
+    answerKey:'Answers: '+r.ans.join(', ')
+  };
+}
+
+// ─── MAIN GENERATE ───────────────────────────────────────────────────────────
+const NAMES=["The Number Kingdom","Jungle Explorer","Space Mission","Dragon's Cave","Pirate Treasure","Rainbow Valley","Wizard School","Ocean Adventure","Dino Discovery","Robot Factory","Mountain Quest","Candy Kingdom","Dinosaur Den","Magical Forest","Cloud Castle"];
+
+function generate(){
+  const count=parseInt(document.getElementById('qCount').value);
+  const kidName=document.getElementById('kidName').value.trim();
+  let title=document.getElementById('titleInput').value.trim();
+  if(!title){title=`Adventure: ${pick(NAMES)}`;document.getElementById('titleInput').value=title;}
+
+  const types=shuffle([...activeTypes]);
+  const seq=Array.from({length:count},(_,i)=>types[i%types.length]);
+
+  const questions=seq.map((type,i)=>{
+    const label=`Q${i+1}`;
+    if(type==='activity') return buildActivity(label);
+    const item=pickUnused(QB[type],type);
+    return {type,label,question:item.q,answer:item.a,body:null,answerKey:item.a};
+  });
+
+  document.getElementById('sheetWrap').innerHTML=
+    renderSheet(questions,title,kidName,false)+
+    '<div style="height:1.2rem"></div>'+
+    renderSheet(questions,title,kidName,true);
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+const TI={math:'🔢',reading:'📖',logic:'🧩',science:'🔬',activity:'🎯'};
+const BC={math:'bm',reading:'br',logic:'bl',science:'bs',activity:'ba'};
+const TL={math:'Math',reading:'Reading',logic:'Logic',science:'Science',activity:'Activity'};
+
+function renderSheet(qs,title,kidName,isKey){
+  const nameBlock=kidName
+    ?`<div class="sh-name">${kidName}'s Sheet${isKey?' — Answers':''}</div>`
+    :`<div class="sh-name">Name: ___________________<br>Date: ___________________</div>`;
+
+  const cards=qs.map(q=>{
+    const ans=isKey
+      ?`<div class="ans-box"><span class="ans-lbl">Answer:</span><span class="ans-val">${q.answerKey}</span></div>`
+      :`<div class="ans-box"><span class="ans-lbl">My answer:</span><span style="flex:1;border-bottom:1.5px solid #ccc;min-height:14px;"></span></div>`;
+    const body=q.body?`<div style="margin:.12rem 0;">${q.body}</div>`:'';
+    return `<div class="qc type-${q.type}">
+      <div class="qt">
+        <span class="badge ${BC[q.type]}">${TI[q.type]} ${TL[q.type]}</span>
+        <span class="ql">${q.label}</span>
+      </div>
+      <div class="qtx">${q.question.replace(/\n/g,'<br>')}</div>
+      ${body}${ans}
+    </div>`;
+  }).join('');
+
+  return `<div class="sheet">
+    <div class="dot-bg"></div>
+    <div class="sh-head${isKey?' key-head':''}">
+      <div class="sh-top">
+        <div>
+          <div class="sh-title">${title}${isKey?' — Answer Key':''}</div>
+          <div class="sh-sub">Do your best — you are amazing! ⭐</div>
+        </div>
+        ${nameBlock}
+      </div>
+      <div class="sh-stars">${'⭐'.repeat(8).split('').map(s=>`<span>${s}</span>`).join('')}</div>
+    </div>
+    <div class="sh-body">${cards}</div>
+    <div class="sh-foot${isKey?' key-foot':''}">${isKey?'✅ ANSWER KEY':'Great job finishing your adventure! ⭐'}</div>
+  </div>`;
+}
+
+generate();
+</script>
+</body>
+</html>
